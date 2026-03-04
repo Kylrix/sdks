@@ -1,0 +1,34 @@
+{
+  "name": "@kylrix/sdk",
+  "version": "0.1.0",
+  "description": "The official Kylrix SDK for TypeScript.",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts --format cjs,esm --dts",
+    "dev": "tsup src/index.ts --format cjs,esm --watch --dts",
+    "lint": "eslint src/**/*.ts",
+    "test": "vitest run"
+  },
+  "keywords": [
+    "kylrix",
+    "sdk",
+    "privacy",
+    "encryption",
+    "auth"
+  ],
+  "author": "Kylrix Organization",
+  "license": "MIT",
+  "devDependencies": {
+    "tsup": "^8.0.2",
+    "typescript": "^5.3.3",
+    "vitest": "^1.3.1"
+  },
+  "dependencies": {
+    "appwrite": "^14.0.0"
+  }
+}

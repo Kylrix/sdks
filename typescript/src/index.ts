@@ -1,4 +1,6 @@
-import { Client, Account, Databases, ID, Query } from 'appwrite';
+import { Client, Account, Databases, ID, Query, Realtime } from 'appwrite';
+import { KylrixSecurity } from './security';
+import { getEcosystemUrl, ECOSYSTEM_CONFIG, TABLE_DB } from './ecosystem';
 
 /**
  * Kylrix SDK Configuration
@@ -6,7 +8,6 @@ import { Client, Account, Databases, ID, Query } from 'appwrite';
 export interface KylrixConfig {
   endpoint: string;
   project: string;
-  domain?: string;
 }
 
 /**
@@ -16,6 +17,15 @@ export class Kylrix {
   private client: Client;
   public account: Account;
   private databases: Databases;
+  private realtimeInstance: Realtime | null = null;
+
+  // Security layer
+  public security = KylrixSecurity;
+
+  // Ecosystem configuration
+  public config = ECOSYSTEM_CONFIG;
+  public resolveUrl = getEcosystemUrl;
+  public tableDb = TABLE_DB;
 
   constructor(config: KylrixConfig) {
     this.client = new Client()
@@ -27,18 +37,34 @@ export class Kylrix {
   }
 
   /**
-   * Helper to get common ecosystem domains if not provided
+   * Initializes and returns the Realtime instance.
    */
-  static getDomain(subdomain: string, baseDomain: string = 'kylrix.space'): string {
-    return `https://${subdomain}.${baseDomain}`;
+  get realtime(): Realtime {
+    if (!this.realtimeInstance) {
+      this.realtimeInstance = new Realtime(this.client);
+    }
+    return this.realtimeInstance;
   }
 
-  // Future implementation of TableDB abstractions
+  /**
+   * Standardized listRows (formerly listDocuments)
+   */
   async listRows(databaseId: string, tableId: string, queries: string[] = []) {
     return await this.databases.listDocuments(databaseId, tableId, queries);
   }
 
+  /**
+   * Standardized getRow (formerly getDocument)
+   */
   async getRow(databaseId: string, tableId: string, rowId: string) {
     return await this.databases.getDocument(databaseId, tableId, rowId);
   }
+
+  /**
+   * Standardized createRow (formerly createDocument)
+   */
+  async createRow(databaseId: string, tableId: string, data: any, rowId: string = ID.unique()) {
+    return await this.databases.createDocument(databaseId, tableId, rowId, data);
+  }
 }
+

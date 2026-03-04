@@ -1,6 +1,7 @@
 import { Client, Account, Databases, ID, Query, Realtime } from 'appwrite';
 import { KylrixSecurity } from './security';
 import { getEcosystemUrl, ECOSYSTEM_CONFIG, TABLE_DB } from './ecosystem';
+import { KylrixPulse } from './pulse';
 
 /**
  * Kylrix SDK Configuration
@@ -18,6 +19,7 @@ export class Kylrix {
   public account: Account;
   private databases: Databases;
   private realtimeInstance: Realtime | null = null;
+  private pulseInstance: KylrixPulse | null = null;
 
   // Security layer
   public security = KylrixSecurity;
@@ -45,6 +47,17 @@ export class Kylrix {
     }
     return this.realtimeInstance;
   }
+
+  /**
+   * High-level Pulse Orchestrator for ecosystem gossip.
+   */
+  get pulse(): KylrixPulse {
+    if (!this.pulseInstance) {
+      this.pulseInstance = new KylrixPulse(this.realtime);
+    }
+    return this.pulseInstance;
+  }
+
 
   /**
    * Standardized listRows (formerly listDocuments)

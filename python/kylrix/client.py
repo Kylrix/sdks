@@ -4,6 +4,7 @@ from appwrite.services.databases import Databases
 from appwrite.id import ID
 from typing import Optional, List, Dict, Any, Union
 import datetime
+from kylrix.security import KylrixSecurity
 
 
 class EcosystemConfig:
@@ -88,11 +89,13 @@ class Kylrix:
         self.account = Account(self.client)
         self.databases = Databases(self.client)
 
-        # Identity & Design
+        # Identity & Security
         self.theme = KylrixTheme()
         self.config = EcosystemConfig()
+        self.security = KylrixSecurity()
 
         # Modules
+
         self.connect = ConnectModule(self)
         self.vault = VaultModule(self)
         self.flow = FlowModule(self)

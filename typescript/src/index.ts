@@ -2,12 +2,13 @@ import { Client, Account, Databases, ID, Query, Realtime } from 'appwrite';
 import { KylrixSecurity } from './security';
 import { getEcosystemUrl, ECOSYSTEM_CONFIG, TABLE_DB } from './ecosystem';
 import { KylrixPulse } from './pulse';
+import { KYLRIX_THEME } from './theme';
 
 /**
  * Kylrix SDK Configuration
  */
 export interface KylrixConfig {
-  endpoint: string;
+  endpoint?: string;
   project: string;
 }
 
@@ -23,6 +24,9 @@ export class Kylrix {
 
   // Security layer
   public security = KylrixSecurity;
+
+  // Design System
+  public theme = KYLRIX_THEME;
 
   // Ecosystem configuration
   public config = ECOSYSTEM_CONFIG;

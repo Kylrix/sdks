@@ -26,6 +26,17 @@ var subdomains = map[string]string{
 	"connect":  "connect",
 }
 
+// Brand constants
+const (
+	BrandPrimary = "#6366F1"
+	BrandCreamy  = "#FDFCFB"
+	BrandGlass   = "rgba(255, 255, 255, 0.7)"
+
+	FontHeading = "Clash Display"
+	FontUI      = "Satoshi"
+	FontMono    = "JetBrains Mono"
+)
+
 // GetEcosystemURL resolves the full URL for a given ecosystem app
 func GetEcosystemURL(subdomain string, path string) string {
 	sub, ok := subdomains[subdomain]

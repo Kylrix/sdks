@@ -30,11 +30,27 @@ class TableDB {
   }
 }
 
+/// Kylrix Design System
+class KylrixTheme {
+  static const String brandColor = '#6366F1';
+  static const String creamyColor = '#FDFCFB';
+  static const String glassColor = 'rgba(255, 255, 255, 0.7)';
+
+  static const String headingFont = 'Clash Display';
+  static const String uiFont = 'Satoshi';
+  static const String monoFont = 'JetBrains Mono';
+
+  static const double blurAmount = 12.0;
+  static const double borderRadius = 16.0;
+}
+
 class Kylrix {
   late final Client _client;
   late final Account _account;
   late final Databases _databases;
   Realtime? _realtime;
+
+  final theme = KylrixTheme();
 
   Kylrix({
     String endpoint = EcosystemConfig.defaultEndpoint,

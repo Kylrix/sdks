@@ -27,11 +27,24 @@ export class Kylrix {
   // Ecosystem configuration
   public config = ECOSYSTEM_CONFIG;
   public resolveUrl = getEcosystemUrl;
-  public tableDb = TABLE_DB;
+  
+  /**
+   * The TableDB abstraction for "Row-based" operations.
+   */
+  public get tableDb() {
+    return {
+      getEventPath: TABLE_DB.getEventPath,
+      listRows: this.listRows.bind(this),
+      getRow: this.getRow.bind(this),
+      createRow: this.createRow.bind(this),
+      updateRow: this.updateRow.bind(this),
+      deleteRow: this.deleteRow.bind(this),
+    };
+  }
 
   constructor(config: KylrixConfig) {
     this.client = new Client()
-      .setEndpoint(config.endpoint)
+      .setEndpoint(config.endpoint || ECOSYSTEM_CONFIG.DEFAULT_ENDPOINT)
       .setProject(config.project);
     
     this.account = new Account(this.client);
@@ -62,22 +75,36 @@ export class Kylrix {
   /**
    * Standardized listRows (formerly listDocuments)
    */
-  async listRows(databaseId: string, tableId: string, queries: string[] = []) {
-    return await this.databases.listDocuments(databaseId, tableId, queries);
+  async listRows<T>(databaseId: string, tableId: string, queries: string[] = []) {
+    return await this.databases.listDocuments<any>(databaseId, tableId, queries);
   }
 
   /**
    * Standardized getRow (formerly getDocument)
    */
-  async getRow(databaseId: string, tableId: string, rowId: string) {
-    return await this.databases.getDocument(databaseId, tableId, rowId);
+  async getRow<T>(databaseId: string, tableId: string, rowId: string) {
+    return await this.databases.getDocument<any>(databaseId, tableId, rowId);
   }
 
   /**
    * Standardized createRow (formerly createDocument)
    */
-  async createRow(databaseId: string, tableId: string, data: any, rowId: string = ID.unique()) {
-    return await this.databases.createDocument(databaseId, tableId, rowId, data);
+  async createRow<T>(databaseId: string, tableId: string, data: T, rowId: string = ID.unique(), permissions?: string[]) {
+    return await this.databases.createDocument<any>(databaseId, tableId, rowId, data as any, permissions);
+  }
+
+  /**
+   * Standardized updateRow (formerly updateDocument)
+   */
+  async updateRow<T>(databaseId: string, tableId: string, rowId: string, data: Partial<T>, permissions?: string[]) {
+    return await this.databases.updateDocument<any>(databaseId, tableId, rowId, data as any, permissions);
+  }
+
+  /**
+   * Standardized deleteRow (formerly deleteDocument)
+   */
+  async deleteRow(databaseId: string, tableId: string, rowId: string) {
+    return await this.databases.deleteDocument(databaseId, tableId, rowId);
   }
 }
 

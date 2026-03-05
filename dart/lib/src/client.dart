@@ -1,5 +1,6 @@
 import 'package:appwrite/appwrite.dart';
 import 'package:appwrite/models.dart' as models;
+import 'pulse.dart';
 
 /// Kylrix Ecosystem Discovery
 class EcosystemConfig {
@@ -49,6 +50,7 @@ class Kylrix {
   late final Account _account;
   late final Databases _databases;
   Realtime? _realtime;
+  KylrixPulse? _pulse;
 
   final theme = KylrixTheme();
 
@@ -67,6 +69,11 @@ class Kylrix {
   Realtime get realtime {
     _realtime ??= Realtime(_client);
     return _realtime!;
+  }
+
+  KylrixPulse get pulse {
+    _pulse ??= KylrixPulse(realtime);
+    return _pulse!;
   }
 
   /// Standardized listRows (formerly listDocuments)

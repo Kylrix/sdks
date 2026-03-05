@@ -3,6 +3,8 @@ import { KylrixSecurity } from './security';
 import { getEcosystemUrl, ECOSYSTEM_CONFIG, TABLE_DB } from './ecosystem';
 import { KylrixPulse } from './pulse';
 import { KYLRIX_THEME } from './theme';
+import { KylrixConnect } from './connect';
+import { KylrixVault } from './vault';
 
 /**
  * Kylrix SDK Configuration
@@ -21,6 +23,10 @@ export class Kylrix {
   private databases: Databases;
   private realtimeInstance: Realtime | null = null;
   private pulseInstance: KylrixPulse | null = null;
+
+  // Domain Modules
+  public connect = new KylrixConnect(this);
+  public vault = new KylrixVault(this);
 
   // Security layer
   public security = KylrixSecurity;

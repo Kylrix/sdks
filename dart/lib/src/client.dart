@@ -3,6 +3,7 @@ import 'package:appwrite/models.dart' as models;
 import 'pulse.dart';
 import 'connect.dart';
 import 'vault.dart';
+import 'flow.dart';
 
 /// Kylrix Ecosystem Discovery
 class EcosystemConfig {

@@ -57,12 +57,19 @@ type Client struct {
 	Appwrite  *client.Client
 	Databases *databases.Databases
 
+	// Identity & Security
+	Theme    *Theme
+	Security *KylrixSecurity
+
 	// Domain Modules
 	Connect *ConnectModule
 	Vault   *VaultModule
 	Flow    *FlowModule
 	Note    *NoteModule
 }
+
+// Theme constants wrapper
+type Theme struct{}
 
 // Config holds the SDK configuration
 type Config struct {
@@ -83,6 +90,8 @@ func NewClient(config Config) *Client {
 	sdk := &Client{
 		Appwrite:  c,
 		Databases: databases.New(c),
+		Theme:     &Theme{},
+		Security:  &KylrixSecurity{},
 	}
 
 	sdk.Connect = &ConnectModule{sdk: sdk}

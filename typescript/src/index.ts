@@ -6,6 +6,7 @@ import { KYLRIX_THEME } from './theme';
 import { KylrixConnect } from './connect';
 import { KylrixVault } from './vault';
 import { KylrixFlow } from './flow';
+import { KylrixNote } from './note';
 
 /**
  * Kylrix SDK Configuration
@@ -29,6 +30,7 @@ export class Kylrix {
   public connect = new KylrixConnect(this);
   public vault = new KylrixVault(this);
   public flow = new KylrixFlow(this);
+  public note = new KylrixNote(this);
 
   // Security layer
   public security = KylrixSecurity;

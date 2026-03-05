@@ -4,6 +4,7 @@ import 'pulse.dart';
 import 'connect.dart';
 import 'vault.dart';
 import 'flow.dart';
+import 'note.dart';
 
 /// Kylrix Ecosystem Discovery
 class EcosystemConfig {
@@ -56,6 +57,8 @@ class Kylrix {
   KylrixPulse? _pulse;
   late final KylrixConnect _connect;
   late final KylrixVault _vault;
+  late final KylrixFlow _flow;
+  late final KylrixNote _note;
 
   final theme = KylrixTheme();
 
@@ -68,12 +71,16 @@ class Kylrix {
     _databases = Databases(_client);
     _connect = KylrixConnect(this);
     _vault = KylrixVault(this);
+    _flow = KylrixFlow(this);
+    _note = KylrixNote(this);
   }
 
   Account get account => _account;
   Databases get databases => _databases;
   KylrixConnect get connect => _connect;
   KylrixVault get vault => _vault;
+  KylrixFlow get flow => _flow;
+  KylrixNote get note => _note;
 
   Realtime get realtime {
     _realtime ??= Realtime(_client);

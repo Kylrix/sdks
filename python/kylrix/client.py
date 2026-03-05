@@ -5,6 +5,7 @@ from appwrite.id import ID
 from typing import Optional, List, Dict, Any, Union
 import datetime
 from kylrix.security import KylrixSecurity
+from kylrix.pulse import KylrixPulse
 
 
 class EcosystemConfig:
@@ -93,6 +94,7 @@ class Kylrix:
         self.theme = KylrixTheme()
         self.config = EcosystemConfig()
         self.security = KylrixSecurity()
+        self.pulse = KylrixPulse(self)
 
         # Modules
 

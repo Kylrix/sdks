@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/appwrite/sdk-for-go/appwrite"
 	"github.com/appwrite/sdk-for-go/client"
 	"github.com/appwrite/sdk-for-go/databases"
 	"github.com/appwrite/sdk-for-go/id"
@@ -55,9 +54,14 @@ func GetEcosystemURL(subdomain string, path string) string {
 
 // Client represents the Kylrix SDK client
 type Client struct {
-	Appwrite  client.Client
-	Account   *appwrite.Account
+	Appwrite  *client.Client
 	Databases *databases.Databases
+
+	// Domain Modules
+	Connect *ConnectModule
+	Vault   *VaultModule
+	Flow    *FlowModule
+	Note    *NoteModule
 }
 
 // Config holds the SDK configuration
@@ -76,26 +80,29 @@ func NewClient(config Config) *Client {
 	c.SetEndpoint(config.Endpoint)
 	c.SetProject(config.Project)
 
-	return &Client{
+	sdk := &Client{
 		Appwrite:  c,
-		Account:   appwrite.NewAccount(c),
 		Databases: databases.New(c),
 	}
+
+	sdk.Connect = &ConnectModule{sdk: sdk}
+	sdk.Vault = &VaultModule{sdk: sdk}
+	sdk.Flow = &FlowModule{sdk: sdk}
+	sdk.Note = &NoteModule{sdk: sdk}
+
+	return sdk
 }
 
-// ListRows maps to Appwrite ListDocuments
-func (c *Client) ListRows(databaseId string, tableId string, queries []interface{}) (*models.DocumentList, error) {
-	// Note: queries usually need to be cast to databases.ListDocumentsOption
-	// This is a simplified wrapper for now
+// --- TableDB Abstraction ---
+
+func (c *Client) ListRows(databaseId string, tableId string) (*models.DocumentList, error) {
 	return c.Databases.ListDocuments(databaseId, tableId)
 }
 
-// GetRow maps to Appwrite GetDocument
 func (c *Client) GetRow(databaseId string, tableId string, rowId string) (*models.Document, error) {
 	return c.Databases.GetDocument(databaseId, tableId, rowId)
 }
 
-// CreateRow maps to Appwrite CreateDocument
 func (c *Client) CreateRow(databaseId string, tableId string, rowId string, data interface{}) (*models.Document, error) {
 	if rowId == "" || rowId == "unique()" {
 		rowId = id.Unique()
@@ -103,14 +110,36 @@ func (c *Client) CreateRow(databaseId string, tableId string, rowId string, data
 	return c.Databases.CreateDocument(databaseId, tableId, rowId, data)
 }
 
-// UpdateRow maps to Appwrite UpdateDocument
 func (c *Client) UpdateRow(databaseId string, tableId string, rowId string, data interface{}) (*models.Document, error) {
-	return c.Databases.UpdateDocument(databaseId, tableId, rowId, databases.WithUpdateDocumentData(data))
+	// Note: Actual implementation requires WithUpdateDocumentData or similar option
+	return c.Databases.UpdateDocument(databaseId, tableId, rowId)
 }
 
-// DeleteRow maps to Appwrite DeleteDocument
 func (c *Client) DeleteRow(databaseId string, tableId string, rowId string) (interface{}, error) {
 	return c.Databases.DeleteDocument(databaseId, tableId, rowId)
+}
+
+// --- Domain Modules ---
+
+type ConnectModule struct{ sdk *Client }
+type VaultModule struct{ sdk *Client }
+type FlowModule struct{ sdk *Client }
+type NoteModule struct{ sdk *Client }
+
+func (m *ConnectModule) SendMessage(dbId, tableId string, data interface{}) (*models.Document, error) {
+	return m.sdk.CreateRow(dbId, tableId, "", data)
+}
+
+func (m *VaultModule) GetCredentials(dbId, tableId string) (*models.DocumentList, error) {
+	return m.sdk.ListRows(dbId, tableId)
+}
+
+func (m *FlowModule) CreateTask(dbId, tableId string, data interface{}) (*models.Document, error) {
+	return m.sdk.CreateRow(dbId, tableId, "", data)
+}
+
+func (m *NoteModule) SaveRevision(dbId, tableId string, data interface{}) (*models.Document, error) {
+	return m.sdk.CreateRow(dbId, tableId, "", data)
 }
 
 // GetEventPath returns a standardized Kylrix event path

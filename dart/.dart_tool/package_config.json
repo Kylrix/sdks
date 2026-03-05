@@ -50,6 +50,12 @@
       "languageVersion": "3.4"
     },
     {
+      "name": "cryptography",
+      "rootUri": "file:///home/nathfavour/.pub-cache/hosted/pub.dev/cryptography-2.9.0",
+      "packageUri": "lib/",
+      "languageVersion": "3.3"
+    },
+    {
       "name": "desktop_webview_window",
       "rootUri": "file:///home/nathfavour/.pub-cache/hosted/pub.dev/desktop_webview_window-0.2.3",
       "packageUri": "lib/",

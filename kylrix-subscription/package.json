@@ -1,0 +1,9 @@
+{
+  "name": "@kylrix/subscription",
+  "version": "1.0.0",
+  "description": "Shared subscription and PPP logic for the Kylrix ecosystem",
+  "main": "src/index.ts",
+  "dependencies": {
+    "react": "^18.0.0"
+  }
+}

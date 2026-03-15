@@ -6,13 +6,13 @@ import {
   SubscriptionTier, 
   PaymentMethod, 
   RegionConfig, 
-  PPP_CONFIG, 
+  PPP_DATA, 
   calculateSubscriptionPrice 
 } from '../lib/ppp';
 
 interface SubscriptionState {
   currentTier: SubscriptionTier | 'FREE';
-  detectedRegion: RegionConfig;
+  detectedRegion: RegionConfig & { countryCode: string };
   paymentMethod: PaymentMethod;
   isLoading: boolean;
   prices: Record<SubscriptionTier, number>;
@@ -40,9 +40,10 @@ export function SubscriptionProvider({
   const client = useMemo(() => new Client().setEndpoint(endpoint).setProject(projectId), [endpoint, projectId]);
   const account = useMemo(() => new Account(client), [client]);
 
-  const detectedRegion = useMemo(() => 
-    PPP_CONFIG[regionCode] || PPP_CONFIG.DEFAULT, 
-  [regionCode]);
+  const detectedRegion = useMemo(() => {
+    const data = PPP_DATA[regionCode] || PPP_DATA.DEFAULT;
+    return { ...data, countryCode: regionCode === 'DEFAULT' ? 'US' : regionCode };
+  }, [regionCode]);
 
   const prices = useMemo(() => ({
     PRO: calculateSubscriptionPrice('PRO', regionCode, paymentMethod),
@@ -60,18 +61,32 @@ export function SubscriptionProvider({
           setCurrentTier('FREE');
         }
 
-        // Try to detect region from user profile or browser if not set
-        if (prefs && prefs.region) {
-            setRegionCode(prefs.region);
+        if (prefs && prefs.region && PPP_DATA[prefs.region]) {
+          setRegionCode(prefs.region);
         } else {
-            // Basic detection or leave at DEFAULT
-            setRegionCode('DEFAULT');
+          // Fallback to IP detection if no pref
+          try {
+            const response = await fetch('https://ipapi.co/json/');
+            const data = await response.json();
+            if (data.country_code && PPP_DATA[data.country_code]) {
+              setRegionCode(data.country_code);
+            }
+          } catch (e) {
+            console.error('IP detection failed', e);
+          }
         }
 
         setIsLoading(false);
       } catch (error) {
-        // If not logged in, we stay on FREE tier
         setCurrentTier('FREE');
+        // Still try IP detection for logged out users
+        try {
+          const response = await fetch('https://ipapi.co/json/');
+          const data = await response.json();
+          if (data.country_code && PPP_DATA[data.country_code]) {
+            setRegionCode(data.country_code);
+          }
+        } catch (e) {}
         setIsLoading(false);
       }
     };

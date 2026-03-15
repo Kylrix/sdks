@@ -4,6 +4,7 @@
   "description": "Shared subscription and PPP logic for the Kylrix ecosystem",
   "main": "src/index.ts",
   "dependencies": {
+    "appwrite": "^23.0.0",
     "react": "^18.0.0"
   }
 }

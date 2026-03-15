@@ -1,6 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useMemo, useEffect } from 'react';
+import { Client, Account } from 'appwrite';
 import { 
   SubscriptionTier, 
   PaymentMethod, 
@@ -10,7 +11,7 @@ import {
 } from '../lib/ppp';
 
 interface SubscriptionState {
-  currentTier: SubscriptionTier;
+  currentTier: SubscriptionTier | 'FREE';
   detectedRegion: RegionConfig;
   paymentMethod: PaymentMethod;
   isLoading: boolean;
@@ -22,11 +23,22 @@ interface SubscriptionState {
 
 const SubscriptionContext = createContext<SubscriptionState | undefined>(undefined);
 
-export function SubscriptionProvider({ children }: { children: React.ReactNode }) {
-  const [currentTier, setCurrentTier] = useState<SubscriptionTier>('PRO');
+export function SubscriptionProvider({ 
+  children,
+  endpoint = 'https://fra.cloud.appwrite.io/v1',
+  projectId = '67fe9627001d97e37ef3'
+}: { 
+  children: React.ReactNode,
+  endpoint?: string,
+  projectId?: string
+}) {
+  const [currentTier, setCurrentTier] = useState<SubscriptionTier | 'FREE'>('FREE');
   const [regionCode, setRegionCode] = useState<string>('DEFAULT');
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('CRYPTO');
   const [isLoading, setIsLoading] = useState(true);
+
+  const client = useMemo(() => new Client().setEndpoint(endpoint).setProject(projectId), [endpoint, projectId]);
+  const account = useMemo(() => new Account(client), [client]);
 
   const detectedRegion = useMemo(() => 
     PPP_CONFIG[regionCode] || PPP_CONFIG.DEFAULT, 
@@ -41,15 +53,30 @@ export function SubscriptionProvider({ children }: { children: React.ReactNode }
   useEffect(() => {
     const initSubscription = async () => {
       try {
-        // Here we will sync with Appwrite account prefs
+        const prefs = await account.getPrefs();
+        if (prefs && prefs.tier) {
+          setCurrentTier(prefs.tier as SubscriptionTier);
+        } else {
+          setCurrentTier('FREE');
+        }
+
+        // Try to detect region from user profile or browser if not set
+        if (prefs && prefs.region) {
+            setRegionCode(prefs.region);
+        } else {
+            // Basic detection or leave at DEFAULT
+            setRegionCode('DEFAULT');
+        }
+
         setIsLoading(false);
       } catch (error) {
-        console.error('Failed to initialize subscription context', error);
+        // If not logged in, we stay on FREE tier
+        setCurrentTier('FREE');
         setIsLoading(false);
       }
     };
     initSubscription();
-  }, []);
+  }, [account]);
 
   const value: SubscriptionState = {
     currentTier,
